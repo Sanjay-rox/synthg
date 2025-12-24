@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynthGuard - Layer 1 Document Forensics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #d0d7ff;
+            border-color: #4c51bf;
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .verdict-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .verdict-score {
+            font-size: 5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .verdict-text {
+            font-size: 1.5em;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+        .risk-critical { background: #d6293e; color: white; }
+
+        .score-authentic { color: #28a745; }
+        .score-suspicious { color: #ffc107; }
+        .score-high-risk { color: #fd7e14; }
+        .score-rejected { color: #dc3545; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3em;
+        }
+
+        .details-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .detail-card {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-card h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .indicator-list {
+            list-style: none;
+        }
+
+        .indicator-list li {
+            padding: 8px 0;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .indicator-list li:last-child {
+            border-bottom: none;
+        }
+
+        .warning-icon {
+            color: #f56565;
+            margin-right: 8px;
+        }
+
+        .info-icon {
+            color: #4299e1;
+            margin-right: 8px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f56565;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ SynthGuard - Layer 1</h1>
+            <p>AI-Powered Document Forensics for Indian Identity Documents</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop your document here or click to upload</div>
+                <div class="upload-subtext">Supports Aadhaar Card, PAN Card (JPG, PNG, PDF)</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*,application/pdf">
+            <div style="text-align: center;">
+                <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Document</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loadingSection">
+            <div class="spinner"></div>
+            <p style="color: white; font-size: 1.2em;">Analyzing document forensics...</p>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 10px;">This may take a few seconds</p>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="verdict-card">
+                <h2>Document Authenticity Analysis</h2>
+                <div class="verdict-score" id="overallScore">--</div>
+                <div class="verdict-text" id="verdictText">--</div>
+                <span class="risk-badge" id="riskBadge">--</span>
+                <div style="margin-top: 20px; color: #718096;">
+                    <p><strong>Document Type:</strong> <span id="docType">--</span></p>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Layer Scores Breakdown</h3>
+                    <canvas id="scoreChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Risk Distribution</h3>
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="details-section">
+                <h2>Detailed Forensic Analysis</h2>
+                <div class="details-grid" id="detailsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let analysisResults = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // Upload area interactions
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFileSelect(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFileSelect(file);
+        });
+
+        function handleFileSelect(file) {
+            if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
+                selectedFile = file;
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">${file.name}</div>
+                    <div class="upload-subtext">File selected - Click "Analyze Document" to proceed</div>
+                `;
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        analyzeBtn.addEventListener('click', analyzeDocument);
+
+        async function analyzeDocument() {
+            if (!selectedFile) return;
+
+            // Show loading
+            loadingSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('document', selectedFile);
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                analysisResults = data;
+                displayResults(data);
+
+            } catch (error) {
+                alert('Error analyzing document: ' + error.message);
+                analyzeBtn.disabled = false;
+            } finally {
+                loadingSection.style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            resultsSection.style.display = 'block';
+
+            // Overall score
+            const score = data.overall_score || 0;
+            const scoreElement = document.getElementById('overallScore');
+            scoreElement.textContent = score.toFixed(1);
+            
+            // Color coding
+            if (score >= 80) {
+                scoreElement.className = 'verdict-score score-authentic';
+            } else if (score >= 60) {
+                scoreElement.className = 'verdict-score score-suspicious';
+            } else if (score >= 40) {
+                scoreElement.className = 'verdict-score score-high-risk';
+            } else {
+                scoreElement.className = 'verdict-score score-rejected';
+            }
+
+            // Verdict and risk
+            document.getElementById('verdictText').textContent = data.verdict || 'Unknown';
+            document.getElementById('docType').textContent = data.document_type || 'Unknown';
+            
+            const riskBadge = document.getElementById('riskBadge');
+            const riskLevel = data.risk_level || 'Unknown';
+            riskBadge.textContent = `${riskLevel} Risk`;
+            riskBadge.className = `risk-badge risk-${riskLevel.toLowerCase()}`;
+
+            // Create charts
+            createScoreChart(data);
+            createRadarChart(data);
+
+            // Display detailed analysis
+            displayDetailedAnalysis(data);
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function createScoreChart(data) {
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            
+            const scores = {
+                'Metadata': data.metadata_analysis?.score || 0,
+                'AI Detection': data.ai_generation_detection?.score || 0,
+                'Manipulation': data.manipulation_detection?.score || 0,
+                'Texture': data.texture_analysis?.score || 0,
+                'Compression': data.compression_analysis?.score || 0,
+                'OCR Validation': data.ocr_validation?.score || 0,
+                'Edge Analysis': data.edge_analysis?.score || 0
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(scores),
+                    datasets: [{
+                        label: 'Authenticity Score',
+                        data: Object.values(scores),
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(52, 211, 153, 0.8)',
+                            'rgba(251, 146, 60, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(168, 85, 247, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(118, 75, 162, 1)',
+                            'rgba(52, 211, 153, 1)',
+                            'rgba(251, 146, 60, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(168, 85, 247, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Score (0-100)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function createRadarChart(data) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            const scores = [
+                data.metadata_analysis?.score || 0,
+                data.ai_generation_detection?.score || 0,
+                data.manipulation_detection?.score || 0,
+                data.texture_analysis?.score || 0,
+                data.compression_analysis?.score || 0,
+                data.ocr_validation?.score || 0,
+                data.edge_analysis?.score || 0
+            ];
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Metadata', 'AI Detection', 'Manipulation', 'Texture', 'Compression', 'OCR', 'Edges'],
+                    datasets: [{
+                        label: 'Forensic Analysis',
+                        data: scores,
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(118, 75, 162, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(118, 75, 162, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayDetailedAnalysis(data) {
+            const detailsGrid = document.getElementById('detailsGrid');
+            detailsGrid.innerHTML = '';
+
+            const sections = [
+                { key: 'metadata_analysis', title: 'Metadata Analysis', icon: '🔍' },
+                { key: 'ai_generation_detection', title: 'AI Generation Detection', icon: '🤖' },
+                { key: 'manipulation_detection', title: 'Manipulation Detection', icon: '✂️' },
+                { key: 'texture_analysis', title: 'Texture Analysis', icon: '🎨' },
+                { key: 'compression_analysis', title: 'Compression Analysis', icon: '📦' },
+                { key: 'ocr_validation', title: 'OCR Validation', icon: '📝' },
+                { key: 'edge_analysis', title: 'Edge Analysis', icon: '📐' }
+            ];
+
+            sections.forEach(section => {
+                const sectionData = data[section.key];
+                if (!sectionData) return;
+
+                const card = document.createElement('div');
+                card.className = 'detail-card';
+                
+                let content = `
+                    <h4>${section.icon} ${section.title}</h4>
+                    <div class="metric-row">
+                        <span class="metric-label">Score:</span>
+                        <span class="metric-value">${sectionData.score || 0}/100</span>
+                    </div>
+                `;
+
+                // Add indicators
+                const indicators = sectionData.suspicious_indicators || 
+                                 sectionData.ai_indicators || 
+                                 sectionData.manipulation_indicators || 
+                                 sectionData.texture_indicators || 
+                                 sectionData.compression_indicators || 
+                                 sectionData.format_indicators || 
+                                 sectionData.edge_indicators || [];
+
+                if (indicators.length > 0) {
+                    content += '<ul class="indicator-list">';
+                    indicators.forEach(indicator => {
+                        content += `<li><span class="warning-icon">⚠️</span>${indicator}</li>`;
+                    });
+                    content += '</ul>';
+                }
+
+                // Add specific metrics
+                for (const [key, value] of Object.entries(sectionData)) {
+                    if (key !== 'score' && !key.includes('indicators') && !key.includes('error') && typeof value !== 'object') {
+                        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        content += `
+                            <div class="metric-row">
+                                <span class="metric-label">${label}:</span>
+                                <span class="metric-value">${value}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                card.innerHTML = content;
+                detailsGrid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

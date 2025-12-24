@@ -1,0 +1,24 @@
+# Unified Identity Verification System - Backend Dependencies
+# Python 3.10+ required
+
+# Web Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+
+# HTTP Client
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# Graph Analysis
+networkx>=3.2.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# API Clients (optional - used if available)
+# anthropic>=0.18.0  # Claude AI - we use direct HTTP calls instead
+
+# Development
+httpx>=0.26.0  # For testing
+

@@ -1,0 +1,48 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║         UNIFIED IDENTITY VERIFICATION - ENVIRONMENT CONFIGURATION            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# Copy this file to .env and fill in your API keys
+# cp env_example .env
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ANTHROPIC / CLAUDE AI (Required for AI analysis)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Get your API key from: https://console.anthropic.com/
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+CLAUDE_MODEL=claude-sonnet-4-20250514
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SEARCH API (Required for OSINT - choose one)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Option 1: Tavily (Recommended)
+# Get your API key from: https://app.tavily.com/
+TAVILY_API_KEY=tvly-your-key-here
+SEARCH_PROVIDER=tavily
+TAVILY_ENDPOINT=https://api.tavily.com/search
+
+# Option 2: SerpAPI (Alternative)
+# Get your API key from: https://serpapi.com/
+# SERPAPI_API_KEY=your-key-here
+# SEARCH_PROVIDER=serpapi
+# SERPAPI_ENDPOINT=https://serpapi.com/search
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHONE VALIDATION (Optional but recommended)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Get your API key from: https://numverify.com/
+NUMVERIFY_API_KEY=your-key-here
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EMAIL VALIDATION (Optional)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Get your API key from: https://www.abstractapi.com/api/email-verification-validation-api
+ABSTRACT_API_KEY=your-key-here
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NOTE: Some APIs work without keys:
+# - HaveIBeenPwned: Works but rate-limited
+# - India Post API: Free, no key required
+# ═══════════════════════════════════════════════════════════════════════════════
+
