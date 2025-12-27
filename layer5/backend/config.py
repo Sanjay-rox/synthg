@@ -5,9 +5,9 @@ load_dotenv()
 
 # Blockchain configuration
 POLYGON_RPC_URL = os.getenv('POLYGON_RPC_URL')
-CONTRACT_ADDRESS = 0xC8b2c748CdDF1980f2c75C39860d98a5691bdb81
+CONTRACT_ADDRESS = "0xC8b2c748CdDF1980f2c75C39860d98a5691bdb81"  # ✅ STRING
 PRIVATE_KEY = os.getenv('PRIVATE_KEY')
-WALLET_ADDRESS = 0x91F8c6a57e9363E125f3cbB947095a0F5602235C
+WALLET_ADDRESS = "0x91F8c6a57e9363E125f3cbB947095a0F5602235C"    # ✅ STRING
 
 # Contract ABI (copy from artifacts after compilation)
 CONTRACT_ABI = [
@@ -398,4 +398,4 @@ CONTRACT_ABI = [
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ]
+]

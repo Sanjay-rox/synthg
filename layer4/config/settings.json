@@ -1,0 +1,39 @@
+{
+  "monitoring": {
+    "update_interval_seconds": 60,
+    "window_minutes": 30,
+    "min_samples_for_prediction": 10
+  },
+  
+  "training": {
+    "baseline_retrain_days": 7,
+    "min_samples_for_baseline": 100,
+    "contamination_detection": true,
+    "confidence_filter_threshold": 0.6
+  },
+  
+  "thresholds": {
+    "critical": 0.2,
+    "high": 0.3,
+    "medium": 0.5,
+    "low": 0.7
+  },
+  
+  "alerts": {
+    "desktop_notifications": true,
+    "rate_limit_seconds": {
+      "low": 600,
+      "medium": 300,
+      "high": 120,
+      "critical": 60
+    }
+  },
+  
+  "fusion_weights": {
+    "baseline": 0.5,
+    "adaptive": 0.25,
+    "statistical": 0.15,
+    "rule_based": 0.10
+  }
+}
+
