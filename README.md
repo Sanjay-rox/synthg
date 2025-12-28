@@ -145,14 +145,13 @@ POST /api/verify-identity
 - EXIF metadata inspection for editing software
 - AI generation detection (Midjourney, DALL-E, Stable Diffusion)
 - Error Level Analysis for manipulation
-- Gabor filters for texture analysis
 - JPEG artifact analysis
 - OCR validation with Verhoeff checksum
 - Canny edge detection for artificial patterns
 
 ### Tech Stack
 - Python, Flask
-- OpenCV, scikit-image
+- OpenCV
 - Tesseract OCR
 - ExifTool, Pillow
 
@@ -221,17 +220,13 @@ POST /api/analyze
 - Social media presence (LinkedIn, Facebook, Twitter, GitHub)
 - Phone legitimacy and carrier validation
 - Cross-reference consistency checks
-- HaveIBeenPwned breach history
-- India Post PIN code validation
 - 12+ signal scoring system
 
 ### Tech Stack
 - Python, FastAPI
 - Anthropic Claude API (web search)
 - Tavily Search API
-- HaveIBeenPwned API
 - Numverify API
-- India Post API
 
 ### API Keys Required
 | API | Purpose | Get Key |
@@ -359,12 +354,10 @@ http://localhost:5174
 - Keystroke dynamics (typing rhythm variations)
 - Navigation pattern analysis (real users pause, backtrack)
 - Form speed analysis (bots are suspiciously fast)
-- ML classification using scikit-learn
 
 ### Tech Stack
 - JavaScript (client-side event capture)
 - Python, FastAPI
-- scikit-learn
 
 ### Execution
 ```bash
@@ -425,7 +418,6 @@ http://localhost:6000
 - Web3.py (Python Integration)
 - Polygon Amoy Testnet
 - Alchemy RPC Provider
-- OpenZeppelin Contracts
 
 ### API Keys Required
 | API | Purpose | Get Key |
@@ -848,7 +840,7 @@ kill -9 <PID>
 ### Tools
 - Tesseract OCR: https://github.com/tesseract-ocr/tesseract
 - Vis.js: https://visjs.org/
-- OpenZeppelin: https://docs.openzeppelin.com/contracts/
+- OpenZeppelin: https://docs.openzeppelin.com/contracts
 
 ---
 
@@ -861,21 +853,6 @@ kill -9 <PID>
 - Backend Development & Blockchain
 - Frontend Development & UI/UX
 - ML/AI Integration & OSINT
-
----
-
-## 📞 Contact & Support
-
-- **GitHub:** https://github.com/yourusername/synthguard
-- **Email:** contact@synthguard.ai
-- **Issues:** https://github.com/yourusername/synthguard/issues
-- **API Docs:** http://localhost:9000/docs (when running)
-
----
-
-## 📝 License
-
-MIT License
 
 ---
 
@@ -910,8 +887,7 @@ MIT License
 
 ---
 
-**Built with ❤️ for PEC Hacks 3.0 - FinTech Track**
-
 **Last Updated:** December 28, 2025  
 **Version:** 3.0.0  
 **Status:** Production Ready
+
