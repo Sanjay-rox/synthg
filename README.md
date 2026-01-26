@@ -846,7 +846,7 @@ kill -9 <PID>
 
 ## 🤝 Team
 
-**Hackathon:** PEC Hacks 3.0 - FinTech Track
+**Domain:** FinTech Track
 
 **Team Members:**
 - Project Lead & Full Stack Development
@@ -890,4 +890,5 @@ kill -9 <PID>
 **Last Updated:** December 28, 2025  
 **Version:** 3.0.0  
 **Status:** Production Ready
+
 
